@@ -1,0 +1,105 @@
+<script>
+var defaultDB = {
+    "test":[
+        {
+            "_id":"9e8449f5-02e5-4707-88c6-7b643c64c483",
+            "_uid":"test1",
+            "_timestamp":"2022-07-01T13:17:17.801Z",
+            "_deleted":false,
+            "counter":5,
+        },
+        {
+            "_id":"2c2f9dc1-1293-4b8d-b228-9b7c91414395",
+            "_uid":"test2",
+            "_timestamp":"2022-07-02T13:17:17.801Z",
+            "_deleted":false,
+            "counter":3,
+        },
+        {
+            "_id":"7cc3ae83-a61b-4c7f-bd1e-cf7e256f347c",
+            "_uid":"test3",
+            "_timestamp":"2022-07-03T13:17:17.801Z",
+            "_deleted":true,
+            "counter":0,
+        },
+        {
+            "_id":"ff4ce40b-a3b7-4e12-88eb-843cef1d1e1d",
+            "_uid":"test4",
+            "_timestamp":"2022-07-03T13:17:17.801Z",
+            "_deleted":false,
+            "counter":3,
+        }
+    ]
+}
+class Database{
+    uuid = crypto.randomUUID();
+	constructor(database, table) {
+        if(database){
+            this.database=database;
+        }else{ //Database not specified
+            this._loaddb();
+        }
+        if(table){
+            this.table_name=table;
+        }
+	}
+    _error(message) {
+        throw `Mushroom DB Error: ${message}`;
+    }
+    _loaddb() {
+		this.database = localStorage.getItem('mushroomdb')||{};
+	}
+    _savedb() {
+		localStorage.setItem('mushroomdb', this.database);
+	}
+
+    _copy(arr){
+        return JSON.parse(JSON.stringify(arr));
+    }
+
+    _filter(params,arr){
+        // TODO support more complicated operations
+        var out = arr.filter(function(x){
+            for(var param in params){
+                console.log(x[param])
+                if(x[param] != params[param]){
+                    return false;
+                }
+            }
+            return true;
+        });
+        return this._copy(out);
+    }
+    table(table_name){
+        if(this.table_name==null){
+            return new Database(this.database,table_name);
+        }else{
+            this._error("Database Table already specified");   
+        }
+        
+    }
+    find(params) {
+        if(this.table_name){
+            return this._filter(params,this.database[this.table_name]);
+        }else{
+            this._error("Specify table before access");   
+        }
+    }
+    update(params,data) {
+        if(this.table_name){
+            return this.database[this.table_name];
+        }else{
+            this._error("Specify table before access");   
+        }
+    }
+    delete(params) {
+
+    }
+    count(params) {
+
+    }
+}    
+
+
+var DB=new Database(defaultDB);
+</script>
